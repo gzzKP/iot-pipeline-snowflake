@@ -29,7 +29,7 @@ IoT Sensors → MQTT (Mosquitto) → Kafka → Apache Spark Streaming → ClickH
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/<you>/iot-pipeline.git
+git clone https://github.com/gzzKP/iot-pipeline.git
 cd iot-pipeline
 cp .env.example .env
 # Edit .env with your Snowflake credentials (or leave blank to skip Snowflake)
