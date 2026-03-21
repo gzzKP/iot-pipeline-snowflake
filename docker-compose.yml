@@ -48,12 +48,16 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_LOG_RETENTION_HOURS: 1
+
     volumes:
       - kafka_data:/var/lib/kafka/data
     networks:
@@ -136,6 +140,16 @@ services:
       SNOWFLAKE_DB: ${SNOWFLAKE_DB:-IOT_DB}
       SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA:-PUBLIC}
       SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:-COMPUTE_WH}
+    networks:
+      - iot-net
+    restart: unless-stopped
+
+ # ─── CLICKHOUSE UI ─────────────────────────────────────────────────────────────
+  clickhouse-ui:
+    image: spoonest/clickhouse-tabix-web-client:stable
+    container_name: clickhouse-ui
+    ports:
+      - "8124:80"
     networks:
       - iot-net
     restart: unless-stopped
