@@ -17,12 +17,12 @@ from datetime import datetime, timezone
 
 import paho.mqtt.client as mqtt
 
-# ── Config ────────────────────────────────────────────────────────────────────
+
 BROKER_HOST = os.getenv("MQTT_BROKER_HOST", "localhost")
 BROKER_PORT = int(os.getenv("MQTT_BROKER_PORT", "1883"))
 INTERVAL = float(os.getenv("PUBLISH_INTERVAL_SECONDS", "2"))
 
-# Simulated device fleet
+## Simulated device fleet
 DEVICES = [
     {"id": "device-001", "location": "factory-floor-A", "type": "industrial"},
     {"id": "device-002", "location": "factory-floor-B", "type": "industrial"},
@@ -31,7 +31,7 @@ DEVICES = [
     {"id": "device-005", "location": "rooftop",        "type": "weather"},
 ]
 
-# ── Sensor models ─────────────────────────────────────────────────────────────
+## Sensor models 
 def read_temperature(device: dict, t: float) -> float:
     """Simulate temperature with diurnal cycle + noise."""
     base = 22.0 if device["type"] == "environmental" else 45.0
@@ -59,14 +59,14 @@ def read_vibration(device: dict) -> float:
     burst = random.choices([0, random.uniform(0.5, 2.0)], weights=[0.95, 0.05])[0]
     return round(base + abs(random.gauss(0, 0.05)) + burst, 4)
 
-# ── MQTT callbacks ────────────────────────────────────────────────────────────
+## MQTT callbacks
 def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         print(f"[simulator] Connected to MQTT broker at {BROKER_HOST}:{BROKER_PORT}")
     else:
         print(f"[simulator] Connection failed with code {rc}")
 
-# ── Main loop ─────────────────────────────────────────────────────────────────
+## Main loop
 def build_payload(device: dict, sensor_type: str, value: float) -> dict:
     return {
         "device_id":   device["id"],
