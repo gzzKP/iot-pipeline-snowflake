@@ -27,7 +27,7 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-# ── Config ─────────────────────────────────────────────────────────────────────
+## Config
 KAFKA_SERVERS  = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 KAFKA_TOPIC    = os.getenv("KAFKA_TOPIC", "iot-sensor-data")
 
@@ -48,7 +48,7 @@ SF_TABLE      = "SENSOR_READINGS"
 
 CHECKPOINT_BASE = "/tmp/spark-checkpoints"
 
-# ── Schema ─────────────────────────────────────────────────────────────────────
+## Schema 
 SENSOR_SCHEMA = StructType([
     StructField("device_id",   StringType(),    True),
     StructField("location",    StringType(),    True),
@@ -61,7 +61,7 @@ SENSOR_SCHEMA = StructType([
     StructField("mqtt_topic",  StringType(),    True),
 ])
 
-# ── Spark session ──────────────────────────────────────────────────────────────
+## Spark session
 def build_spark() -> SparkSession:
     packages = [
         "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0",
@@ -78,7 +78,7 @@ def build_spark() -> SparkSession:
         .getOrCreate()
     )
 
-# ── Kafka source ───────────────────────────────────────────────────────────────
+## Kafka source
 def read_kafka(spark: SparkSession):
     return (
         spark.readStream
@@ -91,7 +91,7 @@ def read_kafka(spark: SparkSession):
         .load()
     )
 
-# ── Transformation ─────────────────────────────────────────────────────────────
+## Transformation 
 def transform(raw_df):
     parsed = (
         raw_df
@@ -114,7 +114,7 @@ def transform(raw_df):
     )
     return clean
 
-# ── ClickHouse sink ────────────────────────────────────────────────────────────
+## ClickHouse sink 
 def write_clickhouse(batch_df, batch_id: int):
     """Writes each micro-batch to ClickHouse via JDBC."""
     if batch_df.isEmpty():
@@ -133,7 +133,7 @@ def write_clickhouse(batch_df, batch_id: int):
     )
     print(f"[spark] ClickHouse batch {batch_id}: {batch_df.count()} rows written")
 
-# ── Snowflake sink ─────────────────────────────────────────────────────────────
+## Snowflake sink 
 def write_snowflake(batch_df, batch_id: int):
     """Writes each micro-batch to Snowflake (skipped if no credentials)."""
     if not SF_URL or not SF_USER:
@@ -158,7 +158,7 @@ def write_snowflake(batch_df, batch_id: int):
     )
     print(f"[spark] Snowflake batch {batch_id}: {batch_df.count()} rows written")
 
-# ── Window aggregations (written to ClickHouse) ────────────────────────────────
+## Window aggregations (written to ClickHouse)
 def start_aggregation_stream(clean_df, spark: SparkSession):
     """
     5-minute tumbling windows per device+sensor_type.
@@ -219,7 +219,7 @@ def start_aggregation_stream(clean_df, spark: SparkSession):
         .start()
     )
 
-# ── Entry point ────────────────────────────────────────────────────────────────
+## Entry point
 def main():
     spark = build_spark()
     spark.sparkContext.setLogLevel("WARN")
