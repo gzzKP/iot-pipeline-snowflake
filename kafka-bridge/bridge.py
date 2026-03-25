@@ -11,7 +11,7 @@ import paho.mqtt.client as mqtt
 from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
-# ── Config ─────────────────────────────────────────────────────────────────────
+
 MQTT_HOST   = os.getenv("MQTT_BROKER_HOST", "localhost")
 MQTT_PORT   = int(os.getenv("MQTT_BROKER_PORT", "1883"))
 MQTT_TOPIC  = os.getenv("MQTT_TOPIC", "sensors/#")
@@ -19,7 +19,7 @@ MQTT_TOPIC  = os.getenv("MQTT_TOPIC", "sensors/#")
 KAFKA_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 KAFKA_TOPIC   = os.getenv("KAFKA_TOPIC", "iot-sensor-data")
 
-# ── Kafka setup ────────────────────────────────────────────────────────────────
+
 def ensure_topic(servers: str, topic: str, partitions: int = 3):
     admin = AdminClient({"bootstrap.servers": servers})
     meta  = admin.list_topics(timeout=10)
@@ -45,7 +45,7 @@ producer = Producer({
     "acks":              "1",
 })
 
-# ── MQTT callbacks ─────────────────────────────────────────────────────────────
+
 def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         client.subscribe(MQTT_TOPIC, qos=1)
@@ -73,7 +73,7 @@ def on_message(client, userdata, msg):
 def on_disconnect(client, userdata, rc, properties=None, reasoncode=None):
     print(f"[bridge] MQTT disconnected (rc={rc}), will reconnect…")
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+
 def main():
     # Wait for Kafka to be ready
     time.sleep(10)
